@@ -1,0 +1,47 @@
+RabbitMQ模式大概分为以下三种:
+(1)单一模式。
+(2)普通模式(默认的集群模式)。
+(3) 镜像模式(把需要的队列做成镜像队列，存在于多个节点，属于RabbiMQ的HA方案，在对业务可靠性要求较高的场合中比较适用)。
+要实现镜像模式，需要先搭建一个普通集群模式，在这个模式的基础上再配置镜像模式以实现高可用。
+
+这里搭建普通模式
+
+Pre project preparation
+        更改三台MQ节点的计算机名分别为mq01、mq02 和mq03，然后修改hosts配置文件
+        # vim /etc/hostname    //其他两台相同
+        mq01.localdomain
+        # vim /etc/hosts
+        192.168.100.143 mq01  //注意不能带.注意-主机名称也要更改
+        192.168.100.144 mq02
+        192.168.100.145 mq03
+1、准备同一网段服务器
+ IP地址	                    主机名	            操作系统	    防火墙和SELinux	    用途
+ 192.168.100.143	mq01	CentOS7.4(64位)	关闭	                          磁盘节点     （一个磁盘节点会出现宕机导致项目无法正常运行）
+ 192.168.100.144	mq02	CentOS7.4(64位)	关闭	                          内存节点
+ 192.168.100.145	mq03	CentOS7.4(64位)	关闭	                          内存节点
+ 
+ 2、搭建环境
+ 
+  1) 安装Erlang环境（rabbitmq需要）  ==》Erlang和socat
+  2）安装rabbitmq-server     
+  注: erlang 和rabbitmq-server 版本有对应关系  请查看官网 ，上述操作在每个节点都需要执行
+  3.拷贝erlang.cookie
+        Rabbitmq的集群是依附于erlang的集群来工作的,所以必须先构建起erlang的集群景象。Erlang的集群中各节点是经由过程一个magic cookie来实现的,这个cookie存放在/var/lib/rabbitmq/.erlang.cookie中，文件是400的权限。所以必须保证各节点cookie一致,不然节点之间就无法通信。
+
+        [root@mq01 ~]# cat /var/lib/rabbitmq/.erlang.cookie 
+        XAHPZVPYUQDWWJIOHUPQ
+        用scp的方式将mq01节点的.erlang.cookie的值复制到其他两个节点中。
+        
+  4、rabbitmqctl stop_app    //停掉rabbit应用
+
+        rabbitmqctl join_cluster --ram rabbit@mq01 //加入到磁盘节点                        注：--ran 表示为内存节点
+
+        rabbitmqctl start_app  //启动rabbit应用
+        
+        注：如没有erlang.cookie 请先启动rabbitmq，加入集群前需先停止当前rabbitmq服务，加入后在启动，三台机器需要在同一网段。
+    
+    
+  
+  
+  
+ 
