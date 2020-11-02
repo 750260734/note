@@ -40,7 +40,32 @@ Pre project preparation
         
         注：如没有erlang.cookie 请先启动rabbitmq，加入集群前需先停止当前rabbitmq服务，加入后在启动，三台机器需要在同一网段。
     
-    
+    5、常用命令
+           systemctl enable rabbitmq-server 添加到系统服务中启动
+           systemctl status rabbitmq-server 查看状态
+           rabbitmq-plugins enable rabbitmq_management 启动web管理界面
+           
+           #创建用户
+          rabbitmqctl add_user admin admin123 && 
+          rabbitmqctl set_user_tags admin administrator && 
+          rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
+          如果开了防火墙，需要添加端口
+          firewall-cmd --zone=public --permanent --add-port=4369/tcp && 
+          #重启防火墙
+          firewall-cmd --reload
+          
+          #记录日志 需要手动启动tracing
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
   
   
   
